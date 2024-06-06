@@ -12,9 +12,18 @@ app.use(cors({
 
 const sequelize = require('./util/database');
 
+const User = require('./models/user');
+const Chat = require('./models/chat');
+
+User.hasMany(Chat);
+Chat.belongsTo(User);
+
 const adminRoutes = require('./routes/user');
+const chatRoutes=require('./routes/chat');
 
 app.use('/user',adminRoutes);
+app.use('/chat',chatRoutes);
+
 
 app.use((req,res)=>{
   res.sendFile(path.join(__dirname,`public/${req.url}`));

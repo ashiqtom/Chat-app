@@ -12,6 +12,7 @@ form.addEventListener('submit', async function(event) {
         const response = await axios.post(`/user/login/${email}/${password}`);
         alert(response.data.message)
         localStorage.setItem('token',response.data.token)
+        window.location.href = "../chatWindow/chatWindow.html";
     } catch (err) {
         console.log(err)
         document.body.innerHTML += `<div style="color:red;">${err.response.data.err} <div>`;

@@ -11,6 +11,7 @@ form.addEventListener('submit',async(e)=>{
         console.log(data)
         const response = await axios.post(`/user/signup`, data);
         alert(response.data.message)
+        window.location.href = "../Login/login.html";
     } catch (error) {
         console.log(error)
         document.body.innerHTML += `<div style="color:red;">${error.response.data.err} <div>`;

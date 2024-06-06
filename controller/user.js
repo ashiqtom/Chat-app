@@ -24,7 +24,7 @@ exports.signupUser=async (req, res) => {
         if (existingUser) {
             return res.status(400).json({ err: 'Email already exists' });
         }
-        const saltrounds=process.env.saltrounds;
+        const saltrounds=Number(process.env.saltrounds);
         const hashedPassword = await bcrypt.hash(password,saltrounds); //blowfish 
 
         await User.create({ username, email , phoneNumber , password:hashedPassword});
