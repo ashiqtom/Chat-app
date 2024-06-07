@@ -32,26 +32,25 @@ document.getElementById('sendMessage').addEventListener('click',async()=>{
 //     }
 // }
 
-// async function allMessage() {
-//     try{
-//         const messages=await axios.get('/messages');
-//         const messageList = document.getElementById('messages');
-//         messageList.innerHTML = '';
-//         messages.forEach(message => {
-//             const div = document.createElement('div');
-//             div.textContent = message;
-//             messageList.appendChild(div);
-//         });
-//     }catch(err){
-//         console.log(err);
-//     }
-// }
+async function allMessage() {
+    try{
+        const messages=await axios.get('/chat/getChat');
+        const messageList = document.getElementById('allMessage');
+        messages.data.forEach(message => {
+            const li = document.createElement('li');
+            li.innerHTML =`name : ${message.name} - message : ${message.chat}`
+            messageList.appendChild(li);
+        });
+    }catch(err){
+        console.log(err);
+    }
+}
 
-// window.addEventListener('DOMContentLoaded', async () => {
-//     try{
-//         peopleStatus();
-//         allMessage();
-//     }catch(err){
-//         console.log(err)
-//     }
-// })
+window.addEventListener('DOMContentLoaded', async () => {
+    try{
+        //peopleStatus();
+        allMessage();
+    }catch(err){
+        console.log(err)
+    }
+})
