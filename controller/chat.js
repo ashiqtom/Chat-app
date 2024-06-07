@@ -12,8 +12,14 @@ exports.postChat=async (req, res) => {
 
 exports.getChat=async(req,res)=>{
     try{
+        const lastMessageId=req.params.lastMsgId || 0;
+        let offset=lastMessageId-10;
+        if(lastMessageId<10){
+            offset=0
+        }
         const chatRes=await Chat.findAll({
-            attributes:['name','chat'],
+            attributes:['id','name','chat'],
+            offset:offset
         })
         res.status(201).json(chatRes);
     }catch(err){

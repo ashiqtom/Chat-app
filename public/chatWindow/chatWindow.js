@@ -6,11 +6,9 @@ document.getElementById('sendMessage').addEventListener('click',async()=>{
         const messageObj={
             message:message
         }
-        console.log(message)
         if(message){
             const token = localStorage.getItem('token');
             const messageResponse=await axios.post(`/chat/postChat`,messageObj,{headers:{"authorization":token}});
-            console.log(messageResponse);
         }
         messageInput.value = "";
     } catch(err){
@@ -35,19 +33,32 @@ document.getElementById('sendMessage').addEventListener('click',async()=>{
 
 async function allMessage() {
     try{
-        const messages=await axios.get('/chat/getChat');
-        const messageList = document.getElementById('allMessage');
-        messageList.innerHTML=''; 
-        messages.data.forEach(message => {
-            const li = document.createElement('li');
-            li.innerHTML =`name : ${message.name} - message : ${message.chat}`
-            messageList.appendChild(li);
-        });
+        const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
+        displayMessage(storedMessages);
+        let lastMessageId=localStorage.getItem('lastMessageId')||0;
+        const getMessages=await axios.get(`/chat/getChat/${lastMessageId}`);
+        const newMessages=getMessages.data;
+        const updatedMessages = storedMessages.concat(newMessages.filter(item2 => {
+            return !storedMessages.some(item1 => item1.id === item2.id);
+        }));
+        localStorage.setItem('messages', JSON.stringify(updatedMessages));
+        const messages =JSON.parse(localStorage.getItem('messages') || []);
+        lastMessageId=messages? messages[messages.length - 1].id : 0;
+        localStorage.setItem('lastMessageId',lastMessageId)
     }catch(err){
         console.log(err);
     }
 }
 
+const displayMessage=(messages)=>{
+    const messageList = document.getElementById('allMessage');
+    messageList.innerHTML=''; 
+    messages.forEach(message => {
+        const li = document.createElement('li');
+        li.innerHTML =`name : ${message.name} - message : ${message.chat}`
+        messageList.appendChild(li);
+    });
+}
 setInterval(allMessage, 1000);
 
 window.addEventListener('DOMContentLoaded', async () => {
