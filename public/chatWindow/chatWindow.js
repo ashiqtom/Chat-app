@@ -1,7 +1,8 @@
 
 document.getElementById('sendMessage').addEventListener('click',async()=>{
     try{
-        const message=document.getElementById('message').value;
+        const messageInput=document.getElementById('message');
+        const message = messageInput.value;
         const messageObj={
             message:message
         }
@@ -11,7 +12,7 @@ document.getElementById('sendMessage').addEventListener('click',async()=>{
             const messageResponse=await axios.post(`/chat/postChat`,messageObj,{headers:{"authorization":token}});
             console.log(messageResponse);
         }
-        document.getElementById('message').innerHTML="";
+        messageInput.value = "";
     } catch(err){
         console.log(err);
     }
@@ -36,6 +37,7 @@ async function allMessage() {
     try{
         const messages=await axios.get('/chat/getChat');
         const messageList = document.getElementById('allMessage');
+        messageList.innerHTML=''; 
         messages.data.forEach(message => {
             const li = document.createElement('li');
             li.innerHTML =`name : ${message.name} - message : ${message.chat}`
@@ -45,6 +47,8 @@ async function allMessage() {
         console.log(err);
     }
 }
+
+setInterval(allMessage, 1000);
 
 window.addEventListener('DOMContentLoaded', async () => {
     try{
