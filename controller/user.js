@@ -3,6 +3,17 @@ const bcrypt=require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 
+exports.getUsers=async(req,res)=>{
+    try{
+        const users=await User.findAll({
+            attributes:['username']
+        })
+        res.status(200).json(users)
+    } catch(err){
+        console.log(err);
+    }
+}
+
 const stringValidate=(string)=>{
     if(string===undefined || string.length===0){
         return false;
@@ -13,7 +24,6 @@ const stringValidate=(string)=>{
 
 exports.signupUser=async (req, res) => {
     try {
-        console.log(req.body)
         const { username, email, phoneNumber, password } = req.body;
         
         if(!stringValidate(username)|| !stringValidate(email)||!stringValidate(password) || !stringValidate(phoneNumber)){

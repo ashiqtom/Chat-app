@@ -14,15 +14,27 @@ const sequelize = require('./util/database');
 
 const User = require('./models/user');
 const Chat = require('./models/chat');
+const Group = require('./models/group');
 
-User.hasMany(Chat);
+User.hasMany(Chat);//one-to-many relationship
 Chat.belongsTo(User);
+User.hasMany(Group);
+Group.belongsTo(User);
+Group.hasMany(Chat);
+Chat.belongsTo(Group);
 
 const adminRoutes = require('./routes/user');
 const chatRoutes=require('./routes/chat');
+const groupRoutes=require('./routes/groups');
+
+// app.use('/',(req,res,next)=>{
+//     console.log(req.url);
+//     next();
+// })
 
 app.use('/user',adminRoutes);
 app.use('/chat',chatRoutes);
+app.use('/group',groupRoutes);
 
 
 app.use((req,res)=>{
@@ -30,6 +42,7 @@ app.use((req,res)=>{
 })
 
 sequelize
+  //.sync({force:true})
   .sync()
   .then(() => {
     app.listen(process.env.PORT || 3000, () => {

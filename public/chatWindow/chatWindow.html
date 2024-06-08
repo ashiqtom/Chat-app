@@ -7,20 +7,31 @@
 </head>
 <body>
     <h2>Caht App</h2>
-    <h3>People loggined</h3>
-    <div id="peopleStatus">
-    </div><br>
-    <h3>Messages</h3>
-    <div id="allMessage">
-    </div><br>
-
+    <a href="../login/login.html">login</a>
+    <a href="../signup/signup.html">signup</a>
+    <h2>Create Group</h2>
     <div>
+        <label for="createGroup">Create group</label>
+        <input type="text" id="createGroup" name="createGroup">
+        <button id="createGroupBtn">Create</button>
+    </div>
+    <h2>Group list</h2>
+    <div id="groupList"></div>
+    <ul id="groupList"></ul>    
+
+    <h3 id="messageHeading">Messages</h3>
+    <button id="addMembers" style="display: none;">Add Members</button>
+    <div id="peopleStatus"></div><br>
+    
+    <button id="groupMembers" style="display: none;">groupMembers</button>
+    <div id="groupMemberslist"></div>
+
+    <div id="messageInput" style="display: none;">
         <label for="message">type here</label>
         <input type="text" id="message" name="message" placeholder="enter the message here">
         <button id="sendMessage">send</button>
     </div>
-    <a href="../login/login.html">login</a>
-    <a href="../signup/signup.html">signup</a>
+    <div id="allMessage"></div><br>
 </body>
 <script src="chatWindow.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.2/axios.min.js"></script>
