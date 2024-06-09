@@ -19,8 +19,8 @@ exports.getChat=async(req,res)=>{
             offset=0
         }
         const chatRes=await Chat.findAll({
-            where:{UserId:req.user.id,groupId:groupId},
-            //attributes:['id','name','chat'],
+            where:{groupId:groupId},
+            attributes:['id','name','chat','groupId'],
             offset:offset
         })
         res.status(201).json(chatRes);

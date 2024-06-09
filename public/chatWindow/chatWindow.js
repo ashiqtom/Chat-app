@@ -1,11 +1,24 @@
 let currentGroup=null;
 let currentGroupName=null;
 
+// Example of calling login function when user logs in
+document.getElementById('logout').addEventListener('click', async () => {
+    try {
+        localStorage.removeItem('messages');
+        localStorage.removeItem('lastMessageId');
+        localStorage.removeItem('token');
+        window.location.href = "../Login/login.html";
+    } catch (err) {
+        console.error(err);
+    }
+});
+
+
 const groupList=async ()=>{
     try{
         const token = localStorage.getItem('token');
         groups=await axios.get(`/group/getGroup`,{headers:{'authorization':token}})
-        
+        console.log(groups.data)
         const groupList = document.getElementById('groupList');
         groups.data.forEach(group => {
             const listItem = document.createElement('li');
@@ -47,7 +60,6 @@ document.getElementById('sendMessage').addEventListener('click',async()=>{
             const token = localStorage.getItem('token');
             const messageResponse=await axios.post(`/chat/postChat`,messageObj,{headers:{"authorization":token}});
             console.log(messageResponse)
-            allMessage(currentGroup);
         }
         messageInput.value = "";
     } catch(err){
@@ -58,7 +70,11 @@ document.getElementById('sendMessage').addEventListener('click',async()=>{
 async function allMessage(groupId) {
     try{
         const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
-        const filteredMessages = storedMessages.filter(message => message.groupId === groupId);
+        console.log(storedMessages);
+        const filteredMessages = storedMessages.filter(message => { 
+            console.log( message.groupId, groupId)
+            return message.groupId === groupId
+        });
         displayMessage(filteredMessages);
 
         const token = localStorage.getItem('token');
@@ -80,6 +96,7 @@ async function allMessage(groupId) {
 }
 
 const displayMessage=(messages)=>{
+    console.log(messages)
     document.getElementById('messageInput').style.display='block'
     const addMembersBtn=document.getElementById('addMembers');
     addMembersBtn.style.display='block';
@@ -147,6 +164,7 @@ async function peopleAdd() {
 
 window.addEventListener('DOMContentLoaded', async () => {
     try{
+        document.getElementById('adminNmae').innerHTML=`Welcome ${localStorage.getItem('adminName')}`
         groupList()
     }catch(err){
         console.log(err)

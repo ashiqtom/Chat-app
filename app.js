@@ -18,8 +18,10 @@ const Group = require('./models/group');
 
 User.hasMany(Chat);//one-to-many relationship
 Chat.belongsTo(User);
-User.hasMany(Group);
-Group.belongsTo(User);
+
+User.belongsToMany(Group, { through: 'UserGroup' });//many to many
+Group.belongsToMany(User, { through: 'UserGroup' });
+
 Group.hasMany(Chat);
 Chat.belongsTo(Group);
 
@@ -42,8 +44,8 @@ app.use((req,res)=>{
 })
 
 sequelize
-  //.sync({force:true})
   .sync()
+  //.sync()
   .then(() => {
     app.listen(process.env.PORT || 3000, () => {
       console.log(`Server is running on port ${process.env.PORT}`);

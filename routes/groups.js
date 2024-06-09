@@ -7,7 +7,7 @@ const authenticatemiddleware = require('../middleware/auth');
 
 router.post('/postGroup',authenticatemiddleware.authenticate, groupController.postGroup);
 router.get('/getGroup',authenticatemiddleware.authenticate,groupController.getGroup);
-router.post('/addMembers',authenticatemiddleware.authenticate,groupController.addMembers);
+router.post('/addMembers',authenticatemiddleware.authenticate,groupController.addMember);
 router.get('/groupMembers/:groupName',authenticatemiddleware.authenticate,groupController.getGroupMembers)
 
 module.exports = router;
