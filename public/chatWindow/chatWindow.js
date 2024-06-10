@@ -41,7 +41,8 @@ document.getElementById('createGroupBtn').addEventListener('click',async()=>{
     try{
         const token = localStorage.getItem('token');
         const groupName=document.getElementById('createGroup').value;
-        const groupRes=await axios.post(`/group/postGroup`,{groupName:groupName},{headers:{'authorization':token}})
+        const groupRes=await axios.post(`/group/createGroup`,{groupName:groupName},{headers:{'authorization':token}})
+        console.log(groupRes.data);
 
     }catch(err){
         console(err);
@@ -96,7 +97,6 @@ async function allMessage(groupId) {
 }
 
 const displayMessage=(messages)=>{
-    console.log(messages)
     document.getElementById('messageInput').style.display='block'
     const addMembersBtn=document.getElementById('addMembers');
     addMembersBtn.style.display='block';
@@ -104,7 +104,6 @@ const displayMessage=(messages)=>{
         peopleAdd()
     })
     
-
     const messageList = document.getElementById('allMessage');
     messageList.innerHTML=''; 
     messages.forEach(message => {
@@ -119,40 +118,92 @@ const displayMessage=(messages)=>{
     const groupList=document.getElementById('groupMemberslist')
     groupList.textContent='';
 }
-    const groupMembers=document.getElementById('groupMembers')
-    groupMembers.addEventListener('click',async()=>{
+
+const groupMembers=document.getElementById('groupMembers')
+groupMembers.addEventListener('click',async()=>{
+    try{
         const token = localStorage.getItem('token');
         const groups=await axios.get(`/group/groupMembers/${currentGroupName}`,{headers:{'authorization':token}})
         console.log(groups.data)
+
         const groupList=document.getElementById('groupMemberslist')
+        groupList.innerHTML = '';
         groups.data.forEach(group => { 
+            console.log(group)
             const listItem = document.createElement('li');
-            listItem.textContent = group.username;
+            
+            if(group.username===localStorage.getItem('adminName') && group.Admin){
+                listItem.innerHTML = `${group.username} - You - Admin`;
+
+            } else if (group.username===localStorage.getItem('adminName')){
+                listItem.innerHTML = `${group.username} - You`;
+            } else if (group.Admin){
+                listItem.innerHTML = `${group.username}- Admin`;
+            } else {
+                listItem.innerHTML = `${group.username}`;
+
+                const addAdmin=document.createElement('button');
+                addAdmin.innerHTML='addAdmin';
+                addAdmin.addEventListener('click',async()=>{
+                    try{
+                        const token = localStorage.getItem('token');
+                        const promoteToAdmin=await axios.post(`/group/promoteToAdmin`,{
+                            groupName:currentGroupName,
+                            username:group.username
+                        },{headers:{'authorization':token}});
+                        console.log(promoteToAdmin,'```````````')
+                    }catch(err){
+                        console.log(err.response.data.message)
+                    }
+                });
+                listItem.appendChild(addAdmin);
+
+                const removeUser = document.createElement('button');
+                removeUser.innerHTML = 'Remove User';
+                removeUser.addEventListener('click', async () => {
+                    try{
+                        const removeUserResponse = await axios.post(`/group/removeUser`, {
+                            groupName: currentGroupName,
+                            username: group.username
+                        }, { headers: { 'authorization': token } });
+                        console.log(removeUserResponse.data);
+                    }catch(err){
+                        console.log(err.response.data.message)
+                    }
+                });
+                listItem.appendChild(removeUser);
+            }
             groupList.appendChild(listItem);
         });
-    })
+    }catch(err){
+        console.log(err,'``````````')
+    }
+})
 
 async function peopleAdd() {
     try{
         const users=await axios.get('/user/userList')
-        console.log(users)
         const userList = document.getElementById('peopleStatus');
         userList.innerHTML = '';
         users.data.forEach(user => {
-            const li = document.createElement('li');
-            li.textContent = user.username;
-            li.addEventListener('click',async()=>{
-                try{
-                    const token = localStorage.getItem('token');
-                    const groupRes=await axios.post(`/group/addMembers`,{
-                        groupName:currentGroupName,
-                        username:user.username
-                    },{headers:{'authorization':token}});
-                }catch(err){
-                    console.log(err);
-                }
-            })
-            userList.appendChild(li);
+            if(user.username !== localStorage.getItem('adminName')){
+                const li = document.createElement('li');
+                li.textContent = user.username;
+                li.addEventListener('click',async()=>{
+                    try{
+                        const token = localStorage.getItem('token');
+                        const groupRes=await axios.post(`/group/addMembers`,{
+                            groupName:currentGroupName,
+                            username:user.username
+                        },{headers:{'authorization':token}});
+                        console.log(groupRes.data)
+
+                    }catch(err){
+                        console.log(err);
+                    }
+                })
+                userList.appendChild(li);
+            }
         });
     }catch(err){
         console.log(err);

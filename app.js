@@ -15,12 +15,16 @@ const sequelize = require('./util/database');
 const User = require('./models/user');
 const Chat = require('./models/chat');
 const Group = require('./models/group');
+const UserGroup=require('./models/UserGroup');
 
 User.hasMany(Chat);//one-to-many relationship
 Chat.belongsTo(User);
 
-User.belongsToMany(Group, { through: 'UserGroup' });//many to many
-Group.belongsToMany(User, { through: 'UserGroup' });
+User.belongsToMany(Group, { through: UserGroup , onDelete: 'CASCADE'});//many to many
+Group.belongsToMany(User, { through: UserGroup });
+
+UserGroup.belongsTo(User);
+UserGroup.belongsTo(Group);
 
 Group.hasMany(Chat);
 Chat.belongsTo(Group);
