@@ -4,10 +4,13 @@ let currentGroupName=null;
 // Example of calling login function when user logs in
 document.getElementById('logout').addEventListener('click', async () => {
     try {
+        const token = localStorage.getItem('token');
+        await axios.post("/user/logOff", {},{ headers: { "Authorization": token } });
         localStorage.removeItem('messages');
         localStorage.removeItem('lastMessageId');
         localStorage.removeItem('token');
         window.location.href = "../Login/login.html";
+        
     } catch (err) {
         console.error(err);
     }
@@ -25,6 +28,7 @@ const groupList=async ()=>{
             listItem.textContent = group.groupName;
             listItem.addEventListener('click', () => {
                 document.getElementById('messageHeading').innerHTML=`Message from group ${group.groupName}`
+                document.getElementById('showLoggedUsers').style.display='block'
                 allMessage(group.id);
                 currentGroup=group.id;
                 currentGroupName=group.groupName;
@@ -119,6 +123,27 @@ const displayMessage=(messages)=>{
     groupList.textContent='';
 }
 
+document.getElementById('showLoggedUsers').addEventListener('click', async () => {
+    const token = localStorage.getItem('token');
+    try {
+        const response = await axios.get(`/user/getloggedUser/${currentGroupName}`, {
+            headers: { 'authorization': token }
+        });
+        const loggedUsers = response.data;
+        console.log(loggedUsers)
+        const userList = document.getElementById('loggedUsersList');
+        userList.innerHTML = ''; // Clear previous list items if any
+        loggedUsers.forEach(username => {
+            const listItem = document.createElement('li');
+            listItem.textContent = username;
+            userList.appendChild(listItem);
+        });
+    } catch (err) {
+        console.error(err);
+    }
+});
+
+
 const groupMembers=document.getElementById('groupMembers')
 groupMembers.addEventListener('click',async()=>{
     try{
@@ -183,7 +208,7 @@ groupMembers.addEventListener('click',async()=>{
 async function peopleAdd() {
     try{
         const users=await axios.get('/user/userList')
-        const userList = document.getElementById('peopleStatus');
+        const userList = document.getElementById('addMembersList');
         userList.innerHTML = '';
         users.data.forEach(user => {
             if(user.username !== localStorage.getItem('adminName')){
@@ -217,7 +242,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     try{
         document.getElementById('adminNmae').innerHTML=`Welcome ${localStorage.getItem('adminName')}`
         groupList()
+        const token = localStorage.getItem('token');
+        await axios.post('/user/setloggedUser',{},{headers:{'authorization':token}})
     }catch(err){
         console.log(err)
     }
 })
+
+// window.addEventListener('beforeunload', setOfflineUser);
+// async function setOfflineUser(e) {
+//     try {
+//         await axios.post("http://3.110.172.188:3000/user/set-offline",{}, { headers: { "Authorization": token } });
+//     } catch (error) {
+//         alert("Error sending offline status:", error);
+//     }
+// }

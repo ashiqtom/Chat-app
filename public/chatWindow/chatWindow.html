@@ -8,22 +8,29 @@
 <body>
     <h2>Caht App</h2>
     <h2 id="adminNmae"></h2>
+
     <a href="../login/login.html">login</a>
     <a href="../signup/signup.html">signup</a>
     <button id="logout">logout</button>
+
     <h2>Create Group</h2>
-    <div>
-        <label for="createGroup">Create group</label>
-        <input type="text" id="createGroup" name="createGroup">
-        <button id="createGroupBtn">Create</button>
-    </div>
+        <div>
+            <label for="createGroup">Create group</label>
+            <input type="text" id="createGroup" name="createGroup">
+            <button id="createGroupBtn">Create</button>
+        </div>
+
     <h2>Group list</h2>
-    <div id="groupList"></div>
-    <ul id="groupList"></ul>    
+        <div id="groupList"></div>
+        <ul id="groupList"></ul>    
 
     <h3 id="messageHeading">Messages</h3>
+    
+    <button id="showLoggedUsers" style="display: none;">Logged Users</button>
+    <ul id="loggedUsersList"></ul>
+
     <button id="addMembers" style="display: none;">Add Members</button>
-    <div id="peopleStatus"></div><br>
+    <div id="addMembersList"></div><br>
     
     <button id="groupMembers" style="display: none;">groupMembers</button>
     <div id="groupMemberslist"></div>
@@ -33,6 +40,7 @@
         <input type="text" id="message" name="message" placeholder="enter the message here">
         <button id="sendMessage">send</button>
     </div>
+
     <div id="allMessage"></div><br>
 </body>
 <script src="chatWindow.js"></script>

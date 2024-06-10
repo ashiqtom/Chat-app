@@ -1,6 +1,7 @@
 const User = require('../models/user');
 const bcrypt=require('bcrypt');
 const jwt = require('jsonwebtoken');
+const Group = require("../models/group");
 
 
 exports.getUsers=async(req,res)=>{
@@ -72,3 +73,58 @@ exports.loginUser = async (req, res) => {
 const generateAccessToken=(id,name)=>{
     return jwt.sign({userId:id,name:name},process.env.jwtSecretkey)
 };
+
+
+exports.getloggedUser = async (req, res) => {
+    try {
+        console.log(req.params,'```````')
+        const { groupName } = req.params;
+        const userId = req.user.id;
+
+        // Find the group by name
+        const group = await Group.findOne({ where: { groupName } });
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found' });
+        }
+
+        // Check if the requesting user is a member of the group
+        const isMember = await group.hasUser(userId);
+        if (!isMember) {
+            return res.status(403).json({ message: 'You are not a member of this group' });
+        }
+
+        // Find all logged in users in the group
+        const usersInGroup = await group.getUsers({
+            where: { loggedIn: true },
+            attributes: ['username']
+        });
+
+        const usernames = usersInGroup.map(user => user.username);
+
+        return res.status(200).json(usernames);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err });
+    }
+};
+
+exports.setloggedUser = async (req, res) => {
+try {
+    req.user.loggedIn = true;
+    await req.user.save();
+    res.status(200).json({ message: "User is online" });
+} catch (err) {
+    res.status(500).json({err});
+}
+}
+
+exports.logOff = async (req, res) => {
+try {
+    req.user.loggedIn = false;
+    await req.user.save();
+    res.status(200).json({ message: "User is offline" });
+} catch (err) {
+    console.error(err);
+    res.status(500).json({ err});
+}
+}
