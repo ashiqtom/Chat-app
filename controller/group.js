@@ -211,24 +211,24 @@ exports.getGroupMembers = async (req, res) => {
             return res.status(403).json({ message: 'You are not a member of this group' });
         }
 
-        const reqUser = await UserGroup.findOne({where: {UserId: req.user.id,GroupId: group.id}});
+        // const reqUser = await UserGroup.findOne({where: {UserId: req.user.id,GroupId: group.id}});
         
-        if (!reqUser.isAdmin) {
-            const members = await group.getUsers({
-                attributes: ['username'],
-                through: {
-                    attributes: ['isAdmin']
-                }
-            });
+        // if (!reqUser.isAdmin) {
+        //     const members = await group.getUsers({
+        //         attributes: ['username'],
+        //         through: {
+        //             attributes: ['isAdmin']
+        //         }
+        //     });
                 
-            // Format response
-            const usernames = members.map(member => ({
-                username: member.username,
-                Admin: member.UserGroup.isAdmin
-            }));
+        //     // Format response
+        //     const usernames = members.map(member => ({
+        //         username: member.username,
+        //         Admin: member.UserGroup.isAdmin
+        //     }));
 
-            return res.status(200).json(usernames);
-        }
+        //     return res.status(200).json(usernames);
+        // }
 
         // Fetch all users in the group along with their admin status
         const members = await group.getUsers({
@@ -250,3 +250,5 @@ exports.getGroupMembers = async (req, res) => {
         res.status(500).json({ message: 'An error occurred while fetching group members' });
     }
 };
+
+
