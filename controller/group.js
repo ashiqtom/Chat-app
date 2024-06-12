@@ -1,8 +1,38 @@
-const { where } = require("sequelize");
 const Group = require("../models/group");
 const User = require("../models/user");
 const UserGroup=require('../models/UserGroup')
 const sequelize = require('../util/database');
+
+const { Op } = require('sequelize');
+
+
+exports.getUsers = async (req, res) => {
+    try {
+        const groupId = req.params.groupId;
+
+        const userGroups = await UserGroup.findAll({
+            attributes: ['UserId'],
+            where: { GroupId: groupId }
+        });
+        
+        const userIdsInGroup = userGroups.map(ug => ug.UserId);
+
+        const users = await User.findAll({
+            attributes: ['username'],
+            where: {
+                id: {
+                    [Op.notIn]: userIdsInGroup
+                }
+            }
+        });
+
+        res.status(200).json(users);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: 'Failed to get users' });
+    }
+};
+
 
 
 exports.removeUser = async (req, res) => {

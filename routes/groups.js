@@ -5,6 +5,7 @@ const router = express.Router();
 const groupController = require('../controller/group');
 const authenticatemiddleware = require('../middleware/auth');
 
+router.get('/userList/:groupId',groupController.getUsers)
 router.post('/createGroup',authenticatemiddleware.authenticate, groupController.createGroup);
 router.get('/getGroup',authenticatemiddleware.authenticate,groupController.getGroup);
 router.post('/addMembers',authenticatemiddleware.authenticate,groupController.addMember);

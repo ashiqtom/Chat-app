@@ -1,19 +1,6 @@
 const User = require('../models/user');
 const bcrypt=require('bcrypt');
 const jwt = require('jsonwebtoken');
-const Group = require("../models/group");
-
-
-exports.getUsers=async(req,res)=>{
-    try{
-        const users=await User.findAll({
-            attributes:['username']
-        })
-        res.status(200).json(users)
-    } catch(err){
-        console.log(err);
-    }
-}
 
 const stringValidate=(string)=>{
     if(string===undefined || string.length===0){
@@ -77,7 +64,6 @@ const generateAccessToken=(id,name)=>{
 
 exports.getloggedUser = async (req, res) => {
     try {
-        console.log(req.params,'```````')
         const { groupName } = req.params;
         const userId = req.user.id;
 
