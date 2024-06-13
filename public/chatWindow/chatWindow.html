@@ -38,7 +38,12 @@
     <div id="messageInput" style="display: none;">
         <label for="message">type here</label>
         <input type="text" id="message" name="message" placeholder="enter the message here">
-        <button id="sendMessage">send</button>
+        <button id="sendMessage">Send Message</button><br><br>
+        
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="myFile" name="myFile">
+            <button type="submit">Upload File</button>
+        </form>
     </div>
 
     <div id="allMessage"></div><br>

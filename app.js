@@ -3,12 +3,17 @@ const bodyParser = require('body-parser');
 const cors = require('cors'); 
 const path = require('path');
 require('dotenv').config();
+const app = express();
+
+
+
+
 
 //socket.io
 const http = require('http');
 const socketIo = require('socket.io');
 
-const app = express();
+
 const server = http.createServer(app);
 const io = socketIo(server);
 
@@ -56,6 +61,10 @@ const chatRoutes = require('./routes/chat');
 const groupRoutes = require('./routes/groups');
 
 // Use routes
+app.use('/',(req,res,next)=>{
+  console.log(req.url);
+  next();
+})
 app.use('/user', adminRoutes);
 app.use('/chat', chatRoutes);
 app.use('/group', groupRoutes);

@@ -1,6 +1,33 @@
 let currentGroup = null;
 let currentGroupName = null;
 
+
+document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const fileInput = document.getElementById('myFile');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        return alert('Please select a file to upload');
+    }
+
+    const formData = new FormData();
+    formData.append('myFile', file);
+    formData.append('groupId', currentGroup);
+
+    const token = localStorage.getItem('token');
+
+    try {
+        const response = await axios.post(`/chat/uploadFile`,formData,{headers:{"authorization":token}});
+        console.log(response)
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('message').innerText = 'Failed to upload file';
+    }
+});
+
+
 const socket = io();
 socket.on('newMessage', (groupId) => {
     allMessage(groupId);
@@ -28,7 +55,6 @@ const groupList = async () => {
         console.log(err);
     }
 }
-
 
 document.getElementById('createGroupBtn').addEventListener('click', async () => {
     try {
@@ -99,8 +125,11 @@ const displayMessage = (messages) => {
     const messageList = document.getElementById('allMessage');
     messageList.innerHTML = ''; 
     messages.forEach(message => {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const contentWithLinks = message.chat.replace(urlRegex, '<a href="$1" target="_blank">click</a>');
+
         const li = document.createElement('li');
-        li.innerHTML = `name: ${message.name} - message: ${message.chat}`;
+        li.innerHTML = `name: ${message.name} - message: ${contentWithLinks}`;
         messageList.appendChild(li);
     });
 
