@@ -5,14 +5,9 @@ const path = require('path');
 require('dotenv').config();
 const app = express();
 
-
-
-
-
 //socket.io
 const http = require('http');
 const socketIo = require('socket.io');
-
 
 const server = http.createServer(app);
 const io = socketIo(server);
@@ -27,7 +22,6 @@ io.on('connection', (socket) => {
 
   socket.on('joinGroup', (groupId) => {
     socket.join(groupId);
-    console.log(groupId)
   });
 
 });
@@ -55,16 +49,10 @@ UserGroup.belongsTo(Group);
 Group.hasMany(Chat);
 Chat.belongsTo(Group);
 
-// Import routes and controllers
 const adminRoutes = require('./routes/user');
 const chatRoutes = require('./routes/chat');
 const groupRoutes = require('./routes/groups');
 
-// Use routes
-app.use('/',(req,res,next)=>{
-  console.log(req.url);
-  next();
-})
 app.use('/user', adminRoutes);
 app.use('/chat', chatRoutes);
 app.use('/group', groupRoutes);
@@ -72,6 +60,11 @@ app.use('/group', groupRoutes);
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, `public/${req.url}`));
 });
+
+
+// Start the cron job
+const cronJob = require('./cron/cron'); // Import the cron job configuration
+
 
 sequelize.sync()
   .then(() => {
