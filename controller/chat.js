@@ -47,10 +47,11 @@ exports.uploadFile=async(req,res)=>{
         });
 
         io.to(groupId).emit('newMessage', groupId);
-        res.status(201).json({url:uploadedFile.Location,chat:chatRes});
+        res.status(201).json({url:uploadedFile.Location,message:"file posted"});
 
     }catch(err){
         console.log(err);
+        res.status(500).json({ error: 'Failed to post message' });
     }
 }
 

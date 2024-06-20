@@ -12,5 +12,6 @@ router.post('/addMembers',authenticatemiddleware.authenticate,groupController.ad
 router.get('/groupMembers/:groupName',authenticatemiddleware.authenticate,groupController.getGroupMembers);
 router.post('/promoteToAdmin',authenticatemiddleware.authenticate,groupController.promoteToAdmin);
 router.post('/removeUser',authenticatemiddleware.authenticate,groupController.removeUser);
+router.delete('/deleteGroup',authenticatemiddleware.authenticate,groupController.deleteGroup)
 
 module.exports = router;

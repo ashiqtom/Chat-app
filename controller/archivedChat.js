@@ -25,8 +25,10 @@ exports.archiveOldChats =async () => {
           name: chat.name,
           chat: chat.chat,
           createdAt: chat.createdAt,
-          updatedAt: chat.updatedAt
-        });
+          updatedAt: chat.updatedAt,
+          UserId:chat.UserId,
+          groupId:chat.groupId
+          });
         await chat.destroy();
       }
   

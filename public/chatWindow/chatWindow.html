@@ -4,49 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatWindow</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h2>Caht App</h2>
-    <h2 id="adminNmae"></h2>
-
-    <a href="../login/login.html">login</a>
-    <a href="../signup/signup.html">signup</a>
-    <button id="logout">logout</button>
-
-    <h2>Create Group</h2>
-        <div>
-            <label for="createGroup">Create group</label>
-            <input type="text" id="createGroup" name="createGroup">
-            <button id="createGroupBtn">Create</button>
+    <div id="container">
+        <div id="leftDiv">
+            <a href="../login/login.html">login</a>
+            <a href="../signup/signup.html">signup</a>
+            <button id="logout">logout</button>
+    
+            <h2>Caht App</h2>
+            <h2 id="adminNmae"></h2>
+    
+            <h2>Create Group</h2>
+                <div>
+                    <label for="createGroup">Create group</label>
+                    <input type="text" id="createGroup" name="createGroup">
+                    <button id="createGroupBtn">Create</button>
+                </div>
+    
+            <h2>Group list</h2>
+                <ul id="groupList"></ul>  
         </div>
-
-    <h2>Group list</h2>
-        <div id="groupList"></div>
-        <ul id="groupList"></ul>    
-
-    <h3 id="messageHeading">Messages</h3>
-    
-    <button id="showLoggedUsers" style="display: none;">Logged Users</button>
-    <ul id="loggedUsersList"></ul>
-
-    <button id="addMembers" style="display: none;">Add Members</button>
-    <div id="addMembersList"></div><br>
-    
-    <button id="groupMembers" style="display: none;">groupMembers</button>
-    <div id="groupMemberslist"></div>
-
-    <div id="messageInput" style="display: none;">
-        <label for="message">type here</label>
-        <input type="text" id="message" name="message" placeholder="enter the message here">
-        <button id="sendMessage">Send Message</button><br><br>
+          
+        <div id="rightDiv" style="display: none;">
+            <h3 id="messageHeading">Messages</h3>
         
-        <form id="uploadForm" enctype="multipart/form-data">
-            <input type="file" id="myFile" name="myFile">
-            <button type="submit">Upload File</button>
-        </form>
+            <button id="showLoggedUsers">Logged Users</button>
+            <ul id="loggedUsersList"></ul>
+    
+            <button id="addMembers">Add Members</button>
+            <div id="addMembersList"></div><br>
+            
+            <button id="groupMembers">groupMembers</button>
+            <div id="groupMemberslist"></div>
+    
+            <div id="messageInput">
+                <label for="message">type here</label>
+                <input type="text" id="message" name="message" placeholder="enter the message here">
+                <button id="sendMessage">Send Message</button><br><br>
+                
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <input type="file" id="myFile" name="myFile">
+                    <button type="submit">Upload File</button>
+                </form>
+            </div>
+    
+            <ul id="allMessage"></ul>
+        </div>
     </div>
-
-    <div id="allMessage"></div><br>
+    
+    
 </body>
 <script src="/socket.io/socket.io.js"></script>
 <script src="chatWindow.js"></script>

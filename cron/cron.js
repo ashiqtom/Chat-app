@@ -2,6 +2,9 @@
 const { CronJob } = require('cron');
 const archiveController = require('../controller/archivedChat');
 
+
+// archiveController.archiveOldChats();
+
 const job = new CronJob(
   '0 0 * * *', // Run at midnight every day
   archiveController.archiveOldChats, // Function to call

@@ -15,3 +15,8 @@ exports.authenticate=async(req,res,next)=>{
         return res.status(401).json({success:false});
     }
 }
+
+exports.auth=async(req)=>{
+    console.log(req,'!!!!!!!!!!')
+    
+}

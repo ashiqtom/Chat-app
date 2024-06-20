@@ -3,8 +3,40 @@ const User = require("../models/user");
 const UserGroup=require('../models/UserGroup')
 const sequelize = require('../util/database');
 
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
+exports.deleteGroup=async (req,res)=>{
+    try{
+        const userId=req.user.id;
+        const groupId=req.body.groupId;
+
+        console.log(userId,'userId')
+        console.log(groupId,'groupId',req.body)
+
+        const userGroup=await UserGroup.findOne({
+            where:{
+                UserId:userId,
+                groupId:groupId,
+                isAdmin:true
+            }
+        });
+        if(!userGroup){
+            return res.status(403).json({message:'you are not admin'});
+        }
+        // Find the group to ensure it exists
+        const group = await Group.findByPk(groupId);
+        if (!group) {
+            return res.status(404).json({ message: 'Group not found.' });
+        }
+
+        // Delete the group (cascading deletions will occur for associated records)
+        await group.destroy();
+
+        res.status(200).json({ message: 'Group deleted successfully.' });
+    } catch (err){
+        console.log(err);
+    }
+}
 
 exports.getUsers = async (req, res) => {
     try {
