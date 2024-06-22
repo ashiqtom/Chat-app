@@ -14,8 +14,7 @@ form.addEventListener('submit', async function(event) {
         localStorage.setItem('adminName',response.data.userName);
         window.location.href = "../chatWindow/chatWindow.html";
         localStorage.removeItem('messages');
-        localStorage.removeItem('lastMessageId');
-    } catch (err) {
-        document.body.innerHTML += `<div style="color:red;">${err.response.data.err} <div>`;
+    } catch (error) {
+        document.body.innerHTML += `<div style="color:red;">${error.response.data.error} <div>`;
     }
 });

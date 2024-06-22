@@ -9,10 +9,6 @@ router.post('/signup', userController.signupUser);
 
 router.post('/login/:email/:password',userController.loginUser);
 
-router.post('/setloggedUser',authenticatemiddleware.authenticate,userController.setloggedUser)
-
-router.post('/logOff',authenticatemiddleware.authenticate,userController.logOff)
-
 router.get('/getloggedUser/:groupName',authenticatemiddleware.authenticate,userController.getloggedUser)
 
 module.exports = router;

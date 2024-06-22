@@ -12,7 +12,7 @@ form.addEventListener('submit',async(e)=>{
         alert(response.data.message)
         window.location.href = "../login/login.html";
     } catch (error) {
-        document.body.innerHTML += `<div style="color:red;">${error.response.data.err} <div>`;
+        document.body.innerHTML += `<div style="color:red;">${error.response.data.error} <div>`;
             //dynamically adds a new <div> element to the end of the <body>
     }
 })

@@ -10,13 +10,30 @@ exports.authenticate=async(req,res,next)=>{
         req.user=userDetails;
         
         next();
-    } catch(err){
-        console.log(err); 
+    } catch(error){
+        console.log(error); 
         return res.status(401).json({success:false});
     }
 }
 
-exports.auth=async(req)=>{
-    console.log(req,'!!!!!!!!!!')
-    
-}
+exports.authenticateSocket = async (socket, next) => {
+    try {
+      const { token } = socket.handshake.query;
+      if (!token) {
+        return next(new Error('Authentication error'));
+      }
+  
+      const decoded = jwt.verify(token, process.env.jwtSecretkey);
+      const user = await User.findByPk(decoded.userId);
+  
+      if (!user) {
+        return next(new Error('Authentication error'));
+      }
+  
+      socket.user = user;
+      next();
+    } catch (error) {
+      console.error(error);
+      next(new Error('Authentication error'));
+    }
+  };

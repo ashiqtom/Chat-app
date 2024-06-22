@@ -16,12 +16,12 @@ exports.signupUser=async (req, res) => {
         const { username, email, phoneNumber, password } = req.body;
         
         if(!stringValidate(username)|| !stringValidate(email)||!stringValidate(password) || !stringValidate(phoneNumber)){
-            return res.status(400).json({err:"bad request ,something is missing"});        
+            return res.status(400).json({error:"bad request ,something is missing"});        
         }
         const existingUser = await User.findOne({ where: { email } });
 
         if (existingUser) {
-            return res.status(400).json({ err: 'Email already exists' });
+            return res.status(400).json({ error: 'Email already exists' });
         }
         const saltrounds=Number(process.env.saltrounds);
         const hashedPassword = await bcrypt.hash(password,saltrounds); //blowfish 
@@ -29,9 +29,9 @@ exports.signupUser=async (req, res) => {
         await User.create({ username, email , phoneNumber , password:hashedPassword});
         res.status(201).json({message: 'Successfuly create new user'});
 
-    } catch (err) {
-        console.error('Error signing up:', err);
-        res.status(500).json({ err: 'Internal server error' });
+    } catch (error) {
+        console.error('error signing up:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 }
 
@@ -43,18 +43,18 @@ exports.loginUser = async (req, res) => {
         const existingUser = await User.findOne({ where: { email } });
         
         if (!existingUser) {
-            return res.status(404).json({ err: 'Invalid email' });
+            return res.status(404).json({ error: 'Invalid email' });
         }
         const passwordCompared=await bcrypt.compare(password,existingUser.password);
 
         if(passwordCompared){
             return res.status(200).json({ success: true, message: "User logged in successfully",userName:existingUser.username,token: generateAccessToken(existingUser.id,existingUser.username)});
         }else{
-            return res.status(400).json({success: false, err: 'Password is incorrect'});
+            return res.status(400).json({success: false, error: 'Password is incorrect'});
         }
-    } catch (err) {
-        console.error('Error login:', err);
-        return res.status(500).json({err: err, success: false});
+    } catch (error) {
+        console.error('error login:', error);
+        return res.status(500).json({error: 'Internal server error', success: false});
     }
 };
 
@@ -89,29 +89,27 @@ exports.getloggedUser = async (req, res) => {
         const usernames = usersInGroup.map(user => user.username);
 
         return res.status(200).json(usernames);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: err });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error:'Internal server error'});
     }
 };
 
-exports.setloggedUser = async (req, res) => {
-try {
-    req.user.loggedIn = true;
-    await req.user.save();
-    res.status(200).json({ message: "User is online" });
-} catch (err) {
-    res.status(500).json({err});
-}
+exports.setloggedUser = async (user) => {
+    try {
+        user.loggedIn = true;
+        await user.save();
+    } catch (error) {
+        console.log(error);
+    }
 }
 
-exports.logOff = async (req, res) => {
-try {
-    req.user.loggedIn = false;
-    await req.user.save();
-    res.status(200).json({ message: "User is offline" });
-} catch (err) {
-    console.error(err);
-    res.status(500).json({ err});
+exports.setlogOff = async (user) => {
+    try {
+        user.loggedIn = false;
+        await user.save();
+    } catch (error) {
+        console.log(error);
+    }
 }
-}
+

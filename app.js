@@ -5,6 +5,7 @@ const path = require('path');
 require('dotenv').config();
 const app = express();
 
+
 //socket.io
 const http = require('http');
 const socketIo = require('socket.io');
@@ -13,24 +14,52 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 const chatController = require('./controller/chat');
+chatController.init(io);// Pass io to the chat controller
 
-// Pass io to the chat controller
-chatController.init(io);
+const { authenticateSocket } = require('./middleware/auth');
+io.use(authenticateSocket); //authenticate 
+
+const {setloggedUser,setlogOff} = require('./controller/user');
 
 io.on('connection', (socket) => {
-  console.log('New client connected');
+  console.log('A user connected');
+  setloggedUser(socket.user)
 
   socket.on('joinGroup', (groupId) => {
     socket.join(groupId);
   });
 
+  socket.on('disconnect', () => {
+    if (socket.user) {
+      setlogOff(socket.user)
+    }
+  });
 });
+
+
+
+// Start the cron job
+const { CronJob } = require('cron');
+const archiveController = require('./controller/archivedChat');
+
+const job = new CronJob(
+  '0 0 * * *', // Run at midnight every day
+  archiveController.archiveOldChats, // Function to call
+  null, // onComplete
+  true, // Start the job right now
+  'Asia/Kolkata' // Time zone of this job
+);
+job.start();
+
+
 
 
 app.use(bodyParser.json());
 app.use(cors({
   origin: "*",
+  methods: ['GET', 'POST'] 
 }));
+
 
 // Import sequelize and models
 const sequelize = require('./util/database');
@@ -38,16 +67,20 @@ const User = require('./models/user');
 const Chat = require('./models/chat');
 const Group = require('./models/group');
 const UserGroup = require('./models/UserGroup');
+const ArchivedChat = require('./models/archivedChat');
 
 // Define model relationships
-User.hasMany(Chat); 
+User.hasMany(Chat,{ onDelete: 'CASCADE' }); 
 Chat.belongsTo(User);
-User.belongsToMany(Group, { through: UserGroup, onDelete: 'CASCADE' });
-Group.belongsToMany(User, { through: UserGroup });
-UserGroup.belongsTo(User);
-UserGroup.belongsTo(Group);
-Group.hasMany(Chat);
+User.hasMany(ArchivedChat, { onDelete: 'CASCADE' });
+ArchivedChat.belongsTo(User);
+Group.hasMany(Chat,{ onDelete: 'CASCADE' });
 Chat.belongsTo(Group);
+Group.hasMany(ArchivedChat, { onDelete: 'CASCADE' });
+ArchivedChat.belongsTo(Group);
+User.belongsToMany(Group, { through: UserGroup, onDelete: 'CASCADE' });
+Group.belongsToMany(User, { through: UserGroup, onDelete: 'CASCADE' });
+
 
 const adminRoutes = require('./routes/user');
 const chatRoutes = require('./routes/chat');
@@ -62,16 +95,13 @@ app.use((req, res) => {
 });
 
 
-// Start the cron job
-const cronJob = require('./cron/cron'); // Import the cron job configuration
-
-
-sequelize.sync()
+sequelize
+  .sync()
   .then(() => {
     server.listen(process.env.PORT || 3000, () => {
       console.log(`Server is running on port ${process.env.PORT}`);
     });
   })
-  .catch((err) => {
-    console.log(err);
+  .catch((error) => {
+    console.log(error);
   });

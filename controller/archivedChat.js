@@ -34,6 +34,6 @@ exports.archiveOldChats =async () => {
   
       console.log('Archived old chats successfully');
     } catch (error) {
-      console.error('Error archiving old chats:', error);
+      console.error('error archiving old chats:', error);
     }
   };

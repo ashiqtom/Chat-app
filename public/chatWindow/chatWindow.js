@@ -1,14 +1,18 @@
 //encapsulate the state within an object
 const appState = {
-    currentGroup: null,
+    currentGroupId: null,
     currentGroupName: null,
     token: localStorage.getItem('token'),
     adminName: localStorage.getItem('adminName')
 };
 
-const socket = io();
-socket.on('newMessage', (groupId) => {
-    getMessage(groupId);
+const socket = io({
+    query: {
+      token: appState.token
+    }
+  });
+socket.on('newMessage', () => {
+    getMessage();
 });
 
 document.getElementById('sendMessage').addEventListener('click', async () => {
@@ -18,19 +22,17 @@ document.getElementById('sendMessage').addEventListener('click', async () => {
         const message = messageInput.value;
         const messageObj={
             message:message,
-            groupId:appState.currentGroup,
-            token:token
+            groupId:appState.currentGroupId
         }
         if(message){
             const messageResponse=await axios.post(`/chat/postChat`,messageObj,{headers:{"authorization":token}});
-            console.log(messageResponse)
             messageInput.value=''
-            getMessage(appState.currentGroup);
-            socket.emit('message',messageObj);
+            getMessage();
         }
         messageInput.value = "";
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        console.log(error);
+        alert('Failed to upload message')
     }
 });
 
@@ -47,27 +49,26 @@ document.getElementById('uploadForm').addEventListener('submit', async function(
 
     const formData = new FormData();
     formData.append('myFile', file);
-    formData.append('groupId', appState.currentGroup);
+    formData.append('groupId', appState.currentGroupId);
 
     const token = appState.token;
 
     try {
         const response = await axios.post(`/chat/uploadFile`,formData,{headers:{"authorization":token}});
-        console.log(response)
         fileInput.value = '';
-        getMessage(appState.currentGroup);
+        getMessage();
 
     } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('message').innerText = 'Failed to upload file';
+        console.error('error:', error);
+        alert('Failed to upload file')
     }
 });
 
 
-async function getMessage(groupId) {
+const getMessage = async () =>{
     try {
-        console.log('groupid',groupId)
         const token = appState.token;
+        const groupId=appState.currentGroupId;
 
         const storedMessages = JSON.parse(localStorage.getItem('messages')) || [];
         const filteredMessages = storedMessages.filter(message => message.groupId === groupId);
@@ -84,8 +85,8 @@ async function getMessage(groupId) {
 
         const filteredChat = updatedMessages.filter(message => message.groupId === groupId);
         messageDivFunction(filteredChat);
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        console.log(error);
     }
 }
 
@@ -94,7 +95,6 @@ const messageDivFunction = (messages) => {
     document.getElementById('addMembersList').innerHTML='';
     document.getElementById('groupMemberslist').innerHTML='';
 
-    console.log(messages);
     const messageList = document.getElementById('allMessage');
     messageList.innerHTML = ''; 
 
@@ -105,24 +105,20 @@ const messageDivFunction = (messages) => {
         const contentWithLinks = message.chat.replace(urlRegex, (url) => {
             if (url.match(/\.(jpeg|jpg|gif|png)$/i)) {
                 return `<img src="${url}" alt="image" style="max-width: 200px; max-height: 200px;">`;
-            } else if (url.match(/\.(mp4|webm|ogg)$/i)) {
-                return `<video width="320" height="240" controls>
-                            <source src="${url}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>`;
             } else {
                 return `<a href="${url}" target="_blank">click</a>`;
             }
         });
 
-        li.innerHTML = `name: ${message.name} - message: ${contentWithLinks}`;
+        li.innerHTML = `${message.name} - ${contentWithLinks}`;
         messageList.appendChild(li);
     });
 }
+
 document.getElementById('addMembers').addEventListener('click',async () => {
     try {
-        const users = await axios.get(`/group/userList/${appState.currentGroup}`);
-        console.log(users)
+        const users = await axios.get(`/group/userList/${appState.currentGroupId}`);
+       
         const userList = document.getElementById('addMembersList');
         userList.innerHTML = '';
         users.data.forEach(user => {
@@ -139,17 +135,18 @@ document.getElementById('addMembers').addEventListener('click',async () => {
                             username: user.username
                         }, { headers: { 'authorization': token } });
                         alert(response.data.message)
-                        getMessage(appState.currentGroup);
-                    } catch (err) {
-                        console.log(err);
+                        getMessage();
+                    } catch (error) {
+                        console.log(error);
+                        alert('Faild to add Member')
                     }
                 });
                 li.appendChild(addUser)
                 userList.appendChild(li);
             }
         });
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        console.log(error);
     }
 });
 
@@ -159,19 +156,19 @@ document.getElementById('showLoggedUsers').addEventListener('click', async () =>
         const response = await axios.get(`/user/getloggedUser/${appState.currentGroupName}`, { headers: { 'authorization': token } });
         const loggedUsers = response.data;
         const userList = document.getElementById('loggedUsersList');
-        userList.innerHTML = ''; // Clear previous list items if any
+        userList.innerHTML = ''; 
         loggedUsers.forEach(username => {
             const listItem = document.createElement('li');
             listItem.textContent = username;
             userList.appendChild(listItem);
         });
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error(error);
+        alert('Faild to load Member')
     }
 });
 
-const groupMembers = document.getElementById('groupMembers');
-groupMembers.addEventListener('click', async () => {
+document.getElementById('groupMembers').addEventListener('click', async () => {
     try {
         const token = appState.token;
         const groups = await axios.get(`/group/groupMembers/${appState.currentGroupName}`, { headers: { 'authorization': token } });
@@ -197,10 +194,10 @@ groupMembers.addEventListener('click', async () => {
                             groupName: appState.currentGroupName,
                             username: group.username
                         }, { headers: { 'authorization': token } });
-                        console.log(promoteToAdmin, '```````````');
-                        getMessage(appState.currentGroup);
-                    } catch (err) {
-                        console.log(err.response.data.message);
+                        getMessage();
+                    } catch (error) {
+                        console.log(error.response.data.message);
+                        alert('failed')
                     }
                 });
                 listItem.appendChild(addAdmin);
@@ -214,9 +211,10 @@ groupMembers.addEventListener('click', async () => {
                             username: group.username
                         }, { headers: { 'authorization': token } });
                         alert(response.data.message)
-                        getMessage(appState.currentGroup);
-                    } catch (err) {
-                        console.log(err.response.data.message);
+                        getMessage();
+                    } catch (error) {
+                        console.log(error.response.data.message);
+                        alert('failed')
                     }
                 });
                 listItem.appendChild(removeUser);
@@ -224,8 +222,9 @@ groupMembers.addEventListener('click', async () => {
               
             groupList.appendChild(listItem);
         });
-    } catch (err) {
-        console.log(err, '``````````');
+    } catch (error) {
+        console.log(error, '``````````');
+        alert('failed to load group members')
     }
 });
 
@@ -235,13 +234,12 @@ groupMembers.addEventListener('click', async () => {
 
 document.getElementById('logout').addEventListener('click', async () => {
     try {
-        const token = appState.token;
-        await axios.post("/user/logOff", {},{ headers: { "Authorization": token } });
         localStorage.removeItem('messages');
         localStorage.removeItem('token');
         window.location.href = "../login/login.html";
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.error(error);
+        alert('failed')
     }
 });
 
@@ -251,11 +249,11 @@ document.getElementById('createGroupBtn').addEventListener('click', async () => 
         const token = appState.token;
         const groupName = document.getElementById('createGroup').value;
         const response = await axios.post(`/group/createGroup`, { groupName: groupName }, { headers: { 'authorization': token } });
-        console.log(response.data);
         alert(response.data.message)
         groupList()
-    } catch (err) {
-        console(err);
+    } catch (error) {
+        console(error);
+        alert('failed to create group')
     }
 });
 
@@ -279,15 +277,15 @@ const groupList = async () => {
                             'authorization': token
                         },
                         data: {
-                            groupId: appState.currentGroup
+                            groupId: appState.currentGroupId
                         }
                     });
-                    console.log(response);
                     alert(response.data.message)
                     groupList()
                     
-                }catch(err){
-                    console.log(err);
+                }catch(error){
+                    console.log(error);
+                    alert('failed to delete group')
                 }
             });
             listItem.appendChild(deleteBtn)
@@ -308,7 +306,7 @@ const groupList = async () => {
                 document.getElementById('addMembersList').innerHTML='';
                 document.getElementById('groupMemberslist').innerHTML='';
 
-                appState.currentGroup = group.id;
+                appState.currentGroupId = group.id;
                 appState.currentGroupName = group.groupName;
                 socket.emit('joinGroup', group.id);
 
@@ -317,8 +315,8 @@ const groupList = async () => {
             groupListElement.appendChild(listItem);
         });
 
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        console.log(error);
     }
 }
 
@@ -326,9 +324,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     try {
         document.getElementById('adminNmae').innerHTML = `Welcome ${appState.adminName}`;
         groupList();
-        const token = appState.token;
-        await axios.post('/user/setloggedUser', {}, { headers: { 'authorization': token } });
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        console.log(error);
     }
 });
