@@ -10,7 +10,8 @@ const socket = io({
     query: {
       token: appState.token
     }
-  });
+});
+//recive new Message notifocation from server
 socket.on('newMessage', () => {
     getMessage();
 });
@@ -147,6 +148,7 @@ document.getElementById('addMembers').addEventListener('click',async () => {
         });
     } catch (error) {
         console.log(error);
+        alert("failed")
     }
 });
 
@@ -223,7 +225,7 @@ document.getElementById('groupMembers').addEventListener('click', async () => {
             groupList.appendChild(listItem);
         });
     } catch (error) {
-        console.log(error, '``````````');
+        console.log(error);
         alert('failed to load group members')
     }
 });
@@ -284,8 +286,8 @@ const groupList = async () => {
                     groupList()
                     
                 }catch(error){
-                    console.log(error);
-                    alert('failed to delete group')
+                    console.log(error.response.data.message);
+                    alert(error.response.data.message);
                 }
             });
             listItem.appendChild(deleteBtn)
@@ -308,6 +310,8 @@ const groupList = async () => {
 
                 appState.currentGroupId = group.id;
                 appState.currentGroupName = group.groupName;
+                
+                //conect to room
                 socket.emit('joinGroup', group.id);
 
                 getMessage(group.id);

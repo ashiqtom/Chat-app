@@ -22,7 +22,6 @@ io.use(authenticateSocket); //authenticate
 const {setloggedUser,setlogOff} = require('./controller/user');
 
 io.on('connection', (socket) => {
-  console.log('A user connected');
   setloggedUser(socket.user)
 
   socket.on('joinGroup', (groupId) => {
@@ -74,10 +73,12 @@ User.hasMany(Chat,{ onDelete: 'CASCADE' });
 Chat.belongsTo(User);
 User.hasMany(ArchivedChat, { onDelete: 'CASCADE' });
 ArchivedChat.belongsTo(User);
+
 Group.hasMany(Chat,{ onDelete: 'CASCADE' });
 Chat.belongsTo(Group);
 Group.hasMany(ArchivedChat, { onDelete: 'CASCADE' });
 ArchivedChat.belongsTo(Group);
+
 User.belongsToMany(Group, { through: UserGroup, onDelete: 'CASCADE' });
 Group.belongsToMany(User, { through: UserGroup, onDelete: 'CASCADE' });
 

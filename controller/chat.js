@@ -2,8 +2,8 @@ const Chat = require('../models/chat');
 const { Op } = require('sequelize');
 const AWS=require('aws-sdk');
 
-let io;
 // receiving io from the app.js
+let io;
 exports.init = (socketIoInstance) => {
     io = socketIoInstance;
 };

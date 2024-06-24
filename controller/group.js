@@ -2,8 +2,30 @@ const Group = require("../models/group");
 const User = require("../models/user");
 const UserGroup=require('../models/UserGroup')
 const sequelize = require('../util/database');
+const { Op } = require('sequelize');
 
-const { Op, where } = require('sequelize');
+exports.createGroup=async(req,res)=>{
+    const transaction = await sequelize.transaction();
+    try {
+        const {groupName}=req.body;    
+
+        const group = await Group.create({
+            groupName: groupName
+        }, { transaction});
+
+        let requestingUser = await User.findByPk(req.user.id);
+        
+        await group.addUser(requestingUser, { through: { isAdmin: true }, transaction});
+
+        await transaction.commit();
+        res.status(200).json({ message: 'Group created successfully' });
+
+    }catch(error){
+        await transaction.rollback();
+        console.log(error);
+        res.status(500).json({ message: 'An error occurred' });
+    }
+}
 
 exports.deleteGroup=async (req,res)=>{
     try{
@@ -133,7 +155,6 @@ exports.promoteToAdmin = async (req, res) => {
 };
 
 exports.removeMember = async (req, res) => {
-    const t = await sequelize.transaction();
     try {
         const { groupName, username } = req.body;
 
@@ -153,12 +174,9 @@ exports.removeMember = async (req, res) => {
         }
 
         // Remove the user from the group
-        await group.removeUser(user, { transaction: t });
-
-        await t.commit();
+        await group.removeUser(user);
         res.status(200).json({ message: 'User removed from group successfully' });
     } catch (error) {
-        await t.rollback();
         console.error(error);
         res.status(500).json({ message: 'An error occurred while removing the user from the group' });
     }
@@ -166,7 +184,6 @@ exports.removeMember = async (req, res) => {
 
 
 exports.addMember = async (req, res) => {
-    const t = await sequelize.transaction();
     try {
         const { groupName, username } = req.body;
 
@@ -180,40 +197,14 @@ exports.addMember = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        await group.addUser(user, { transaction: t });
-
-        await t.commit();
+        await group.addUser(user);
         res.status(200).json({ message: 'User added to group successfully' });
     } catch (error) {
-        await t.rollback();
         console.error(error);
         res.status(500).json({ message: 'An error occurred while adding the user to the group' });
     }
 };
 
-
-exports.createGroup=async(req,res)=>{
-    const t = await sequelize.transaction();
-    try {
-        const {groupName}=req.body;    
-
-        const group = await Group.create({
-            groupName: groupName
-        }, { transaction: t });
-
-        let requestingUser = await User.findByPk(req.user.id);
-        
-        await group.addUser(requestingUser, { through: { isAdmin: true }, transaction: t });
-
-        await t.commit();
-        res.status(200).json({ message: 'Group created successfully' });
-
-    }catch(error){
-        await t.rollback();
-        console.log(error);
-        res.status(500).json({ message: 'An error occurred' });
-    }
-}
 
 exports.getGroup = async (req, res) => {
     try {
